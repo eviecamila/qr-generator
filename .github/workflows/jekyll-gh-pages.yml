@@ -1,51 +1,27 @@
-# Flujo de trabajo simple para implementar contenido estático en Github Pages
-name: Eviegoda qr si
+name: Node.js CI
 
 on:
-  # Se ejecuta en anotaciones dirigidas a la rama predeterminada
   push:
-    branches: ['main']
-
-  # Te permite ejecutar este flujo de trabajo manualmente desde la pestaña Acciones
-  workflow_dispatch:
-
-# Establece los permisos de GITHUB_TOKEN para permitir la implementación en GitHub Pages
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-# Permite una implementación simultánea
-concurrency:
-  group: 'pages'
-  cancel-in-progress: true
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
-  # Trabajo de implementación único ya que solo estamos implementando
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+  build:
+
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [16.x, 18.x]
+
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Set up Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'npm'
-      - name: Install dependencies
-        run: npm ci
-      - name: Build
-        run: npm run build
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          # Upload dist folder
-          path: './dist'
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+    - uses: actions/checkout@v3
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+    - run: npm ci
+    - run: npm run build --if-present
+    - run: npm test
