@@ -1,5 +1,5 @@
 # Flujo de trabajo simple para implementar contenido estático en Github Pages
-name: Eviegoda qr
+name: Eviegoda qr si
 
 on:
   # Se ejecuta en anotaciones dirigidas a la rama predeterminada
